@@ -4,32 +4,32 @@ import yaml
 import os
 import time
 
-CONFIGDEFAULTS = {
+configDefaults = {
     'host': None,
     'port': 35792,
     'textcolor': '#005fff',
     'backgroundcolor': '#1f1f1f',
     'password': None
 }
-CONFIGFILENAME = "server-config.yaml"
-if os.path.exists(CONFIGFILENAME):
-    with open(CONFIGFILENAME, "r") as f:
-        CONFIG = yaml.load(f, Loader=yaml.FullLoader)
+configFilename = "server-config.yaml"
+if os.path.exists(configFilename):
+    with open(configFilename, "r") as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
 else:
-    with open(CONFIGFILENAME, "w") as f:
-        yaml.dump(CONFIGDEFAULTS, f)
-    CONFIG = CONFIGDEFAULTS
+    with open(configFilename, "w") as f:
+        yaml.dump(configDefaults, f)
+    config = configDefaults
 names = {}
 
 def parseConfig():
-    for key in CONFIGDEFAULTS.keys():
-        if key not in CONFIG:
-            CONFIG[key] = CONFIGDEFAULTS[key]
+    for key in configDefaults.keys():
+        if key not in config:
+            config[key] = configDefaults[key]
 
 @eel.expose
 def onReady():
-    eel.setTextColor(CONFIG["textcolor"])
-    eel.setBackgroundColor(CONFIG["backgroundcolor"])
+    eel.setTextColor(config["textcolor"])
+    eel.setBackgroundColor(config["backgroundcolor"])
     eel.newMessage("[{}] {} {}:{}".format(time.ctime(), "Server running on", *server.getAddr()))
 
 def onRecv(conn, data, _):
@@ -47,8 +47,9 @@ def onDisconnect(conn):
     server.send(message)
 
 parseConfig()
+options = {"port": 8000}
 server = Server(onRecv=onRecv, onDisconnect=onDisconnect)
-server.start(CONFIG["host"], CONFIG["port"])
+server.start(config["host"], config["port"])
 eel.init("web")
-eel.start("server.html", size=(800, 600))
+eel.start("server.html", size=(800, 600), options=options)
 server.stop()

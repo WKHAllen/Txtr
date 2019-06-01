@@ -1,6 +1,7 @@
 eel.expose(setTextColor);
 function setTextColor(color) {
     document.getElementsByTagName("body")[0].style.color = color;
+    document.getElementById("input").style.border = "1px solid " + color;
 }
 
 eel.expose(setBackgroundColor);
@@ -21,7 +22,7 @@ eel.expose(newMessage);
 function newMessage(message) {
     let output = document.getElementById("output");
     let newmsg = document.createElement("p");
-    newmsg.innerHTML = message;
+    newmsg.innerText = message;
     output.appendChild(newmsg);
 }
 

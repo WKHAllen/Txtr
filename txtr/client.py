@@ -26,9 +26,10 @@ def parseConfig():
             CONFIG[key] = CONFIGDEFAULTS[key]
 
 @eel.expose
-def setColors():
+def onReady():
     eel.setTextColor(CONFIG["textcolor"])
     eel.setBackgroundColor(CONFIG["backgroundcolor"])
+    eel.newMessage("{} {}:{}".format("Connected to", *client.getServerAddr()))
 
 @eel.expose
 def sendMessage(message):
@@ -42,9 +43,10 @@ def onDisconnected():
     eel.doAlert("Disconnected from server")
 
 parseConfig()
+options = {"port": 8001}
 client = Client(onRecv=onRecv, onDisconnected=onDisconnected)
 client.connect(CONFIG["host"], CONFIG["port"])
 client.send(CONFIG["name"])
 eel.init("web")
-eel.start("client.html", size=(800, 600))
+eel.start("client.html", size=(800, 600), options=options)
 client.disconnect()
