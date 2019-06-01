@@ -7,7 +7,9 @@ CONFIGDEFAULTS = {
     'host': '127.0.0.1',
     'port': 35792,
     'textcolor': '#005fff',
-    'backgroundcolor': '#1f1f1f'
+    'backgroundcolor': '#1f1f1f',
+    'password': None,
+    'name': 'Anonymous'
 }
 CONFIGFILENAME = "client-config.yaml"
 if os.path.exists(CONFIGFILENAME):
@@ -18,28 +20,31 @@ else:
         yaml.dump(CONFIGDEFAULTS, f)
     CONFIG = CONFIGDEFAULTS
 
+def parseConfig():
+    for key in CONFIGDEFAULTS.keys():
+        if key not in CONFIG:
+            CONFIG[key] = CONFIGDEFAULTS[key]
+
 @eel.expose
 def setColors():
-    if "textcolor" in CONFIG:
-        eel.setTextColor(CONFIG["textcolor"])
-    if "backgroundcolor" in CONFIG:
-        eel.setBackgroundColor(CONFIG["backgroundcolor"])
+    eel.setTextColor(CONFIG["textcolor"])
+    eel.setBackgroundColor(CONFIG["backgroundcolor"])
 
-def getAddr():
-    if "host" in CONFIG:
-        host = CONFIG["host"]
-    else:
-        host = CONFIGDEFAULTS["host"]
-    if "port" in CONFIG:
-        port = CONFIG["port"]
-    else:
-        port = CONFIGDEFAULTS["port"]
-    return host, port
+@eel.expose
+def sendMessage(message):
+    data = {"name": CONFIG["name"], "message": message}
+    client.send(data)
 
-def main():
-    addr = getAddr()
-    eel.init("web")
-    eel.start("client.html", size=(800, 600))
+def onRecv(message, _):
+    eel.newMessage(message)
 
-if __name__ == "__main__":
-    main()
+def onDisconnected():
+    eel.doAlert("Disconnected from server")
+
+parseConfig()
+client = Client(onRecv=onRecv, onDisconnected=onDisconnected)
+client.connect(CONFIG["host"], CONFIG["port"])
+client.send(CONFIG["name"])
+eel.init("web")
+eel.start("client.html", size=(800, 600))
+client.disconnect()

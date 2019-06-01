@@ -3,3 +3,8 @@ body {
     background-color: #1f1f1f;
     font-family: 'Inconsolata', monospace;
 }
+
+#input {
+    position: fixed;
+    bottom: 0;
+}

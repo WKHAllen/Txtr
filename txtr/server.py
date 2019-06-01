@@ -2,12 +2,14 @@ from dtplib import Server
 import eel
 import yaml
 import os
+import time
 
 CONFIGDEFAULTS = {
     'host': None,
     'port': 35792,
     'textcolor': '#005fff',
-    'backgroundcolor': '#1f1f1f'
+    'backgroundcolor': '#1f1f1f',
+    'password': None
 }
 CONFIGFILENAME = "server-config.yaml"
 if os.path.exists(CONFIGFILENAME):
@@ -17,29 +19,36 @@ else:
     with open(CONFIGFILENAME, "w") as f:
         yaml.dump(CONFIGDEFAULTS, f)
     CONFIG = CONFIGDEFAULTS
+names = {}
+
+def parseConfig():
+    for key in CONFIGDEFAULTS.keys():
+        if key not in CONFIG:
+            CONFIG[key] = CONFIGDEFAULTS[key]
 
 @eel.expose
-def setColors():
-    if "textcolor" in CONFIG:
-        eel.setTextColor(CONFIG["textcolor"])
-    if "backgroundcolor" in CONFIG:
-        eel.setBackgroundColor(CONFIG["backgroundcolor"])
+def onReady():
+    eel.setTextColor(CONFIG["textcolor"])
+    eel.setBackgroundColor(CONFIG["backgroundcolor"])
+    eel.newMessage("[{}] {} {}:{}".format(time.ctime(), "Server running on", *server.getAddr()))
 
-def getAddr():
-    if "host" in CONFIG:
-        host = CONFIG["host"]
+def onRecv(conn, data, _):
+    if conn in names:
+        message = "<{}> {}".format(data["name"], data["message"])
     else:
-        host = CONFIGDEFAULTS["host"]
-    if "port" in CONFIG:
-        port = CONFIG["port"]
-    else:
-        port = CONFIGDEFAULTS["port"]
-    return host, port
+        message = "{} joined".format(data)
+        names[conn] = data
+    eel.newMessage("[{}] {}".format(time.ctime(), message))
+    server.send(message)
 
-def main():
-    addr = getAddr()
-    eel.init("web")
-    eel.start("server.html", size=(800, 600))
+def onDisconnect(conn):
+    message = "{} left".format(names[conn])
+    eel.newMessage("[{}] {}".format(time.ctime(), message))
+    server.send(message)
 
-if __name__ == "__main__":
-    main()
+parseConfig()
+server = Server(onRecv=onRecv, onDisconnect=onDisconnect)
+server.start(CONFIG["host"], CONFIG["port"])
+eel.init("web")
+eel.start("server.html", size=(800, 600))
+server.stop()
