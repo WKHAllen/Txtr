@@ -2,38 +2,40 @@ from dtplib import Client
 import eel
 import yaml
 import os
+import sys
 
-CONFIGDEFAULTS = {
+configDefaults = {
     'host': '127.0.0.1',
     'port': 35792,
+    'localport': 8001,
     'textcolor': '#005fff',
     'backgroundcolor': '#1f1f1f',
     'password': None,
     'name': 'Anonymous'
 }
-CONFIGFILENAME = "client-config.yaml"
-if os.path.exists(CONFIGFILENAME):
-    with open(CONFIGFILENAME, "r") as f:
-        CONFIG = yaml.load(f, Loader=yaml.FullLoader)
+configFilename = "client-config.yaml"
+if os.path.exists(configFilename):
+    with open(configFilename, "r") as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
 else:
-    with open(CONFIGFILENAME, "w") as f:
-        yaml.dump(CONFIGDEFAULTS, f)
-    CONFIG = CONFIGDEFAULTS
+    with open(configFilename, "w") as f:
+        yaml.dump(configDefaults, f)
+    sys.exit() # config = configDefaults
 
 def parseConfig():
-    for key in CONFIGDEFAULTS.keys():
-        if key not in CONFIG:
-            CONFIG[key] = CONFIGDEFAULTS[key]
+    for key in configDefaults.keys():
+        if key not in config:
+            config[key] = configDefaults[key]
 
 @eel.expose
 def onReady():
-    eel.setTextColor(CONFIG["textcolor"])
-    eel.setBackgroundColor(CONFIG["backgroundcolor"])
+    eel.setTextColor(config["textcolor"])
+    eel.setBackgroundColor(config["backgroundcolor"])
     eel.newMessage("{} {}:{}".format("Connected to", *client.getServerAddr()))
 
 @eel.expose
 def sendMessage(message):
-    data = {"name": CONFIG["name"], "message": message}
+    data = {"name": config["name"], "message": message}
     client.send(data)
 
 def onRecv(message, _):
@@ -45,8 +47,8 @@ def onDisconnected():
 parseConfig()
 options = {"port": 8001}
 client = Client(onRecv=onRecv, onDisconnected=onDisconnected)
-client.connect(CONFIG["host"], CONFIG["port"])
-client.send(CONFIG["name"])
+client.connect(config["host"], config["port"])
+client.send(config["name"])
 eel.init("web")
 eel.start("client.html", size=(800, 600), options=options)
 client.disconnect()

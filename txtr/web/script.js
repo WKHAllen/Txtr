@@ -1,7 +1,9 @@
 eel.expose(setTextColor);
 function setTextColor(color) {
     document.getElementsByTagName("body")[0].style.color = color;
-    document.getElementById("input").style.border = "1px solid " + color;
+    try {
+        document.getElementById("input").style.border = "1px solid " + color;
+    } catch {}
 }
 
 eel.expose(setBackgroundColor);

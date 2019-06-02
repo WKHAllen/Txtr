@@ -2,11 +2,13 @@ from dtplib import Server
 import eel
 import yaml
 import os
+import sys
 import time
 
 configDefaults = {
     'host': None,
     'port': 35792,
+    'localport': 8000,
     'textcolor': '#005fff',
     'backgroundcolor': '#1f1f1f',
     'password': None
@@ -18,7 +20,7 @@ if os.path.exists(configFilename):
 else:
     with open(configFilename, "w") as f:
         yaml.dump(configDefaults, f)
-    config = configDefaults
+    sys.exit() # config = configDefaults
 names = {}
 
 def parseConfig():
@@ -47,7 +49,7 @@ def onDisconnect(conn):
     server.send(message)
 
 parseConfig()
-options = {"port": 8000}
+options = {"port": config["localport"]}
 server = Server(onRecv=onRecv, onDisconnect=onDisconnect)
 server.start(config["host"], config["port"])
 eel.init("web")
