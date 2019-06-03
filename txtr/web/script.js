@@ -35,6 +35,12 @@ function disableInput() {
     input.setAttribute("disabled", "");
 }
 
+eel.expose(enableInput);
+function enableInput() {
+    let input = document.getElementById("input");
+    input.removeAttribute("disabled");
+}
+
 function main() {
     eel.onReady();
 }

@@ -45,9 +45,14 @@ def addTimestamp(message):
 def onReady():
     eel.setTextColor(config["textcolor"])
     eel.setBackgroundColor(config["backgroundcolor"])
-    client.connect(config["host"], config["port"])
-    client.send({"name": config["name"], "password": config["password"]})
-    eel.newMessage(addTimestamp("Connected to {}:{}".format(*client.getServerAddr())))
+    try:
+        client.connect(config["host"], config["port"])
+    except ConnectionRefusedError:
+        eel.newMessage(addTimestamp("Unable to connect to {}:{}".format(config["host"], config["port"])))
+    else:
+        client.send({"name": config["name"], "password": config["password"]})
+        eel.newMessage(addTimestamp("Connected to {}:{}".format(*client.getServerAddr())))
+        eel.enableInput()
 
 @eel.expose
 def sendMessage(message):

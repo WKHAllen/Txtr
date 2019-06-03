@@ -13,6 +13,7 @@ configDefaults = {
     'backgroundcolor': '#1f1f1f',
     'password': None,
     'showtimestamps': True,
+    'showips': True,
     'logfile': 'server.log'
 }
 configFilename = "server-config.yaml"
@@ -24,6 +25,7 @@ else:
         yaml.dump(configDefaults, f)
     config = configDefaults
 names = {}
+ips = {}
 
 def parseConfig():
     for key in configDefaults.keys():
@@ -41,6 +43,11 @@ def addTimestamp(message):
         message = "[{}] ".format(time.ctime()) + message
     return message
 
+def addIP(message, conn):
+    if config["showips"]:
+        message = "({}:{}) ".format(*ips[conn]) + message
+    return message
+
 @eel.expose
 def onReady():
     eel.setTextColor(config["textcolor"])
@@ -55,16 +62,19 @@ def onRecv(conn, data, _):
         if config["password"] is None or config["password"] == data["password"]:
             message = "{} joined".format(data["name"])
             names[conn] = data["name"]
+            ips[conn] = server.getClientAddr(conn)
         else:
             server.removeClient(conn)
             return
-    eel.newMessage(addTimestamp(message))
+    eel.newMessage(addTimestamp(addIP(message, conn)))
     server.send(message)
 
 def onDisconnect(conn):
     message = "{} left".format(names[conn])
-    eel.newMessage(addTimestamp(message))
+    eel.newMessage(addTimestamp(addIP(message, conn)))
     server.send(message)
+    names.pop(conn)
+    ips.pop(conn)
 
 def onClose(*args, **kwargs):
     server.stop()
