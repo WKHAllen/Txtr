@@ -2,6 +2,7 @@ from dtplib import Client
 import eel
 import yaml
 import os
+import time
 import sys
 
 configDefaults = {
@@ -11,6 +12,8 @@ configDefaults = {
     'textcolor': '#005fff',
     'backgroundcolor': '#1f1f1f',
     'password': None,
+    'showtimestamps': True,
+    'logfile': None,
     'name': 'Anonymous'
 }
 configFilename = "client-config.yaml"
@@ -20,7 +23,7 @@ if os.path.exists(configFilename):
 else:
     with open(configFilename, "w") as f:
         yaml.dump(configDefaults, f)
-    sys.exit() # config = configDefaults
+    config = configDefaults
 
 def parseConfig():
     for key in configDefaults.keys():
@@ -28,10 +31,23 @@ def parseConfig():
             config[key] = configDefaults[key]
 
 @eel.expose
+def logMessage(message):
+    if config["logfile"] is not None:
+        with open(config["logfile"], "a") as f:
+            f.write(message + "\n")
+
+def addTimestamp(message):
+    if config["showtimestamps"]:
+        message = "[{}] ".format(time.ctime()) + message
+    return message
+
+@eel.expose
 def onReady():
     eel.setTextColor(config["textcolor"])
     eel.setBackgroundColor(config["backgroundcolor"])
-    eel.newMessage("{} {}:{}".format("Connected to", *client.getServerAddr()))
+    client.connect(config["host"], config["port"])
+    client.send({"name": config["name"], "password": config["password"]})
+    eel.newMessage(addTimestamp("Connected to {}:{}".format(*client.getServerAddr())))
 
 @eel.expose
 def sendMessage(message):
@@ -39,16 +55,19 @@ def sendMessage(message):
     client.send(data)
 
 def onRecv(message, _):
-    eel.newMessage(message)
+    eel.newMessage(addTimestamp(message))
 
 def onDisconnected():
-    eel.doAlert("Disconnected from server")
+    eel.newMessage(addTimestamp("Disconnected from server"))
+    eel.disableInput()
+
+def onClose(*args, **kwargs):
+    client.disconnect()
+    logMessage(addTimestamp("Disconnected"))
+    sys.exit()
 
 parseConfig()
-options = {"port": 8001}
+options = {"port": config["localport"]}
 client = Client(onRecv=onRecv, onDisconnected=onDisconnected)
-client.connect(config["host"], config["port"])
-client.send(config["name"])
 eel.init("web")
-eel.start("client.html", size=(800, 600), options=options)
-client.disconnect()
+eel.start("client.html", size=(800, 600), options=options, callback=onClose)

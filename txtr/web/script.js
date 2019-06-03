@@ -26,11 +26,13 @@ function newMessage(message) {
     let newmsg = document.createElement("p");
     newmsg.innerText = message;
     output.appendChild(newmsg);
+    eel.logMessage(message);
 }
 
-eel.expose(doAlert);
-function doAlert(text) {
-    alert(text);
+eel.expose(disableInput);
+function disableInput() {
+    let input = document.getElementById("input");
+    input.setAttribute("disabled", "");
 }
 
 function main() {

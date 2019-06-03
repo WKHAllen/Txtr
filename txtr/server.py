@@ -2,8 +2,8 @@ from dtplib import Server
 import eel
 import yaml
 import os
-import sys
 import time
+import sys
 
 configDefaults = {
     'host': None,
@@ -11,7 +11,9 @@ configDefaults = {
     'localport': 8000,
     'textcolor': '#005fff',
     'backgroundcolor': '#1f1f1f',
-    'password': None
+    'password': None,
+    'showtimestamps': True,
+    'logfile': 'server.log'
 }
 configFilename = "server-config.yaml"
 if os.path.exists(configFilename):
@@ -20,7 +22,7 @@ if os.path.exists(configFilename):
 else:
     with open(configFilename, "w") as f:
         yaml.dump(configDefaults, f)
-    sys.exit() # config = configDefaults
+    config = configDefaults
 names = {}
 
 def parseConfig():
@@ -29,29 +31,48 @@ def parseConfig():
             config[key] = configDefaults[key]
 
 @eel.expose
+def logMessage(message):
+    if config["logfile"] is not None:
+        with open(config["logfile"], "a") as f:
+            f.write(message + "\n")
+
+def addTimestamp(message):
+    if config["showtimestamps"]:
+        message = "[{}] ".format(time.ctime()) + message
+    return message
+
+@eel.expose
 def onReady():
     eel.setTextColor(config["textcolor"])
     eel.setBackgroundColor(config["backgroundcolor"])
-    eel.newMessage("[{}] {} {}:{}".format(time.ctime(), "Server running on", *server.getAddr()))
+    server.start(config["host"], config["port"])
+    eel.newMessage(addTimestamp("Server running on {}:{}".format(*server.getAddr())))
 
 def onRecv(conn, data, _):
     if conn in names:
         message = "<{}> {}".format(data["name"], data["message"])
     else:
-        message = "{} joined".format(data)
-        names[conn] = data
-    eel.newMessage("[{}] {}".format(time.ctime(), message))
+        if config["password"] is None or config["password"] == data["password"]:
+            message = "{} joined".format(data["name"])
+            names[conn] = data["name"]
+        else:
+            server.removeClient(conn)
+            return
+    eel.newMessage(addTimestamp(message))
     server.send(message)
 
 def onDisconnect(conn):
     message = "{} left".format(names[conn])
-    eel.newMessage("[{}] {}".format(time.ctime(), message))
+    eel.newMessage(addTimestamp(message))
     server.send(message)
+
+def onClose(*args, **kwargs):
+    server.stop()
+    logMessage(addTimestamp("Server closed"))
+    sys.exit()
 
 parseConfig()
 options = {"port": config["localport"]}
 server = Server(onRecv=onRecv, onDisconnect=onDisconnect)
-server.start(config["host"], config["port"])
 eel.init("web")
-eel.start("server.html", size=(800, 600), options=options)
-server.stop()
+eel.start("server.html", size=(800, 600), options=options, callback=onClose)
