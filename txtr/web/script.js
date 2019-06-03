@@ -1,14 +1,17 @@
 eel.expose(setTextColor);
 function setTextColor(color) {
-    document.getElementsByTagName("body")[0].style.color = color;
+    let body = document.getElementsByTagName("body")[0];
+    body.style.color = color;
     try {
-        document.getElementById("input").style.border = "1px solid " + color;
+        let input = document.getElementById("input");
+        input.style.border = "1px solid " + color;
     } catch {}
 }
 
 eel.expose(setBackgroundColor);
 function setBackgroundColor(color) {
-    document.getElementsByTagName("body")[0].style.backgroundColor = color;
+    let body = document.getElementsByTagName("body")[0];
+    body.style.backgroundColor = color;
 }
 
 function onSubmit(event) {
