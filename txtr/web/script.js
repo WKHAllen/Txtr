@@ -8,6 +8,11 @@ function setBackgroundColor(color) {
     document.documentElement.style.setProperty("--secondary-color", color);
 }
 
+eel.expose(setLogColor);
+function setLogColor(color) {
+    document.documentElement.style.setProperty("--log-color", color);
+}
+
 function onSubmit(event) {
     if (event.keyCode == 13) {
         let input = document.getElementById("input");
@@ -18,7 +23,8 @@ function onSubmit(event) {
 }
 
 eel.expose(newMessage);
-function newMessage(message) {
+function newMessage(message, log) {
+    log = log || log === undefined;
     let output = document.getElementById("output");
     let maxHeight = output.scrollHeight - output.clientHeight;
     let atBottom = false;
@@ -27,11 +33,16 @@ function newMessage(message) {
     }
     let newmsg = document.createElement("p");
     newmsg.innerText = message;
+    if(!log) {
+        newmsg.classList.add("log");
+    }
     output.appendChild(newmsg);
     if (atBottom) {
         output.scrollTop = output.scrollHeight;
     }
-    eel.logMessage(message);
+    if (log) {
+        eel.logMessage(message);
+    }
 }
 
 eel.expose(disableInput);

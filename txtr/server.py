@@ -11,6 +11,7 @@ configDefaults = {
     'localport': 8000,
     'textcolor': '#005fff',
     'backgroundcolor': '#1f1f1f',
+    'logcolor': '#7f7f7f',
     'password': None,
     'showtimestamps': True,
     'showips': True,
@@ -48,12 +49,24 @@ def addIP(message, conn):
         message = "({}:{}) ".format(*ips[conn]) + message
     return message
 
+def loadLogfile():
+    if config["logfile"] is not None:
+        with open(config["logfile"], "r") as f:
+            for line in f:
+                eel.newMessage(line, False)
+
 @eel.expose
 def onReady():
     eel.setTextColor(config["textcolor"])
     eel.setBackgroundColor(config["backgroundcolor"])
-    server.start(config["host"], config["port"])
-    eel.newMessage(addTimestamp("Server running on {}:{}".format(*server.getAddr())))
+    eel.setLogColor(config["logcolor"])
+    loadLogfile()
+    try:
+        server.start(config["host"], config["port"])
+    except:
+        eel.newMessage(addTimestamp("Unable to start server on {}:{}".format(config["host"], config["port"])))
+    else:
+        eel.newMessage(addTimestamp("Server running on {}:{}".format(*server.getAddr())))
 
 def onRecv(conn, data, _):
     if conn in names:

@@ -1,6 +1,7 @@
 :root {
     --primary-color: #005fff;
     --secondary-color: #1f1f1f;
+    --log-color: #7f7f7f;
 }
 
 html, body {
@@ -15,6 +16,7 @@ body, #input {
 
 p {
     margin: 0;
+    padding: 0;
 }
 
 #output {
@@ -28,6 +30,10 @@ p {
     bottom: 0;
     width: 100%;
     border: 2px solid var(--primary-color);
+}
+
+.log {
+    color: var(--log-color);
 }
 
 ::-webkit-scrollbar {

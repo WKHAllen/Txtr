@@ -11,6 +11,7 @@ configDefaults = {
     'localport': 8001,
     'textcolor': '#005fff',
     'backgroundcolor': '#1f1f1f',
+    'logcolor': '#7f7f7f',
     'password': None,
     'showtimestamps': True,
     'logfile': None,
@@ -41,10 +42,18 @@ def addTimestamp(message):
         message = "[{}] ".format(time.ctime()) + message
     return message
 
+def loadLogfile():
+    if config["logfile"] is not None:
+        with open(config["logfile"], "r") as f:
+            for line in f:
+                eel.newMessage(line, False)
+
 @eel.expose
 def onReady():
     eel.setTextColor(config["textcolor"])
     eel.setBackgroundColor(config["backgroundcolor"])
+    eel.setLogColor(config["logcolor"])
+    loadLogfile()
     try:
         client.connect(config["host"], config["port"])
     except ConnectionRefusedError:
