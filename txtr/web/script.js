@@ -42,7 +42,7 @@ function main() {
     try {
         let input = document.getElementById("input");
         let output = document.getElementById("output");
-        output.style.marginBottom = `${input.offsetHeight}px`; // If I knew how to make this work with css I would do so
+        output.style.height = `calc(100% - ${input.offsetHeight}px)`;
     } catch {}
     eel.onReady();
 }
