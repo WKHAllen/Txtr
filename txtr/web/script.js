@@ -20,9 +20,17 @@ function onSubmit(event) {
 eel.expose(newMessage);
 function newMessage(message) {
     let output = document.getElementById("output");
+    let maxHeight = output.scrollHeight - output.clientHeight;
+    let atBottom = false;
+    if (output.scrollTop >= maxHeight) {
+        atBottom = true;
+    }
     let newmsg = document.createElement("p");
     newmsg.innerText = message;
     output.appendChild(newmsg);
+    if (atBottom) {
+        output.scrollTop = output.scrollHeight;
+    }
     eel.logMessage(message);
 }
 
@@ -43,7 +51,10 @@ function main() {
         let input = document.getElementById("input");
         let output = document.getElementById("output");
         output.style.height = `calc(100% - ${input.offsetHeight}px)`;
-    } catch {}
+    } catch {
+        let output = document.getElementById("output");
+        output.style.height = "100%";
+    }
     eel.onReady();
 }
 
