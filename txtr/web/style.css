@@ -1,6 +1,11 @@
+:root {
+    --primary-color: #005fff;
+    --secondary-color: #1f1f1f;
+}
+
 body, #input {
-    color: #005fff;
-    background-color: #1f1f1f;
+    color: var(--primary-color);
+    background-color: var(--secondary-color);
     font-family: 'Inconsolata', monospace;
 }
 
@@ -16,6 +21,19 @@ p {
     position: fixed;
     bottom: 0;
     width: 100%;
-    border: 1px solid #ffffff;
+    border: 1px solid var(--primary-color);
     border-radius: 4px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: var(--secondary-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 9999px;
 }

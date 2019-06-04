@@ -1,17 +1,11 @@
 eel.expose(setTextColor);
 function setTextColor(color) {
-    let body = document.getElementsByTagName("body")[0];
-    body.style.color = color;
-    try {
-        let input = document.getElementById("input");
-        input.style.border = "1px solid " + color;
-    } catch {}
+    document.documentElement.style.setProperty("--primary-color", color);
 }
 
 eel.expose(setBackgroundColor);
 function setBackgroundColor(color) {
-    let body = document.getElementsByTagName("body")[0];
-    body.style.backgroundColor = color;
+    document.documentElement.style.setProperty("--secondary-color", color);
 }
 
 function onSubmit(event) {
@@ -45,6 +39,11 @@ function enableInput() {
 }
 
 function main() {
+    try {
+        let input = document.getElementById("input");
+        let output = document.getElementById("output");
+        output.style.marginBottom = `${input.offsetHeight}px`; // If I knew how to make this work with css I would do so
+    } catch {}
     eel.onReady();
 }
 
