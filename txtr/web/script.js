@@ -14,17 +14,19 @@ function setLogColor(color) {
 }
 
 function onSubmit(event) {
-    if (event.keyCode == 13) {
-        let input = document.getElementById("input");
+    let input = document.getElementById("input");
+    if (event.keyCode === 13) {
         let message = input.value;
         input.value = "";
         eel.sendMessage(message);
+    } else if (event.keyCode === 27) {
+        input.value = "";
     }
 }
 
 eel.expose(newMessage);
 function newMessage(message, log) {
-    log = log || log === undefined;
+    log = log || log === undefined; // default to true
     let output = document.getElementById("output");
     let maxHeight = output.scrollHeight - output.clientHeight;
     let atBottom = false;
@@ -55,6 +57,12 @@ eel.expose(enableInput);
 function enableInput() {
     let input = document.getElementById("input");
     input.removeAttribute("disabled");
+}
+
+eel.expose(selectInput);
+function selectInput() {
+    let input = document.getElementById("input");
+    input.focus();
 }
 
 function main() {

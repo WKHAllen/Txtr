@@ -62,6 +62,7 @@ def onReady():
         client.send({"name": config["name"], "password": config["password"]})
         eel.newMessage(addTimestamp("Connected to {}:{}".format(*client.getServerAddr())))
         eel.enableInput()
+        eel.selectInput()
 
 @eel.expose
 def sendMessage(message):
