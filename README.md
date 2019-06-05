@@ -4,7 +4,7 @@ Txtr, or Texter, is a simple app that functions as a chat program. The program i
 
 ## Intro
 
-Currently, Txtr is not designed to do anything beyond sending chat messages, although the possibility of sending files is not far off. The project is not meant to compete with Skype, Discord, or any other popular text/voice chatting system. The purpose for it is purely educational.
+Txtr? I barely know her! Jokes aside, Txtr is designed to act only as a chatting system, although the possibility of sending files is not far off. The project is not meant to compete with Skype, Discord, or any other popular text/voice chatting platform. The purpose for it is purely educational.
 
 ## Configuration
 
