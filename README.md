@@ -8,7 +8,7 @@ Currently, Txtr is not designed to do anything beyond sending chat messages, alt
 
 ## Configuration
 
-Upon running the server/client binaries, a YAML configuration file will be created. By default, the `host` value in the server config file will be set to null. If this is the case, it is the equivalent of using `socket.gethostname()` in python, meaning that the server will be visible to the outside world. If this is not desirable, one might set the value to `127.0.0.1` instead.
+Upon running the server/client binaries, a YAML configuration file will be created. By default, the `host` value in the server config file will be set to null. If this is the case, it is the equivalent of using `socket.gethostname()` in python, meaning that the server will be visible to the outside world. With the server host value set to null, clients should connect using the server's public ip address. The specified port must be forwarded for this to work. If this is not desirable, one might set the value to `127.0.0.1` instead, in which case the server will run locally.
 
 The GUI is created by eel, which hosts a local webserver on port 8000 by default. The default `localport` option has been set to 8000 in server config and 8001 in client config. While changing this is not a problem, one should make sure two programs aren't trying to use the same port at the same time. What this means is **don't set the localport option to the same thing in server and client config files**.
 
